@@ -13,19 +13,29 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/iOS-18.4+-blue.svg" alt="iOS 18.4+">
-  <img src="https://img.shields.io/badge/Swift-6.2-orange.svg" alt="Swift 6.2">
+  <a href="https://swiftpackageindex.com/mmellau/swift-beacon"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fmmellau%2Fswift-beacon%2Fbadge%3Ftype%3Dswift-versions" alt="Swift versions"></a>
+  <a href="https://swiftpackageindex.com/mmellau/swift-beacon"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fmmellau%2Fswift-beacon%2Fbadge%3Ftype%3Dplatforms" alt="Platforms"></a>
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
 </p>
 
-<p align="center">
-  <video src="Assets/manual-demo.mp4" width="300" autoplay loop muted playsinline></video>
-  &nbsp;&nbsp;
-  <video src="Assets/auto-demo.mp4" width="300" autoplay loop muted playsinline></video>
-</p>
-<p align="center">
-  <sub>Step-by-step spotlight tour · Auto-advancing tutorial</sub>
-</p>
+<table align="center">
+  <tr>
+    <td align="center"><strong>Step-by-step tour</strong></td>
+    <td align="center"><strong>Auto-advancing tutorial</strong></td>
+  </tr>
+  <tr>
+    <td>
+
+https://github.com/user-attachments/assets/adf2eeb9-fac3-4a80-ba96-1ad192fd37ff
+
+</td>
+    <td>
+
+https://github.com/user-attachments/assets/378c5fcb-d9c0-471c-8e9d-39134a80af4b
+
+</td>
+  </tr>
+</table>
 
 ## Features
 
