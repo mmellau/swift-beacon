@@ -135,6 +135,50 @@ struct BeaconCanvas: View {
                     StaticCutout(region: region, coordinator: coordinator)
                 }
             }
+
+            if let labelView = coordinator.currentPresentation?.labelView {
+                let allBounds = regions.reduce(CGRect.null) { result, item in
+                    result.union(item.paddedFrame)
+                }
+
+                GeometryReader { geo in
+                    let unitPoint = UnitPoint(
+                        x: allBounds.midX / geo.size.width,
+                        y: allBounds.midY / geo.size.height
+                    )
+
+                    VStack {
+                        let isTop = unitPoint.y < 0.5
+                        let isLeading = unitPoint.x < 0.7
+
+                        Spacer().frame(height: isTop ? max(0, allBounds.maxY) : nil)
+
+                        HStack {
+                            if !isLeading {
+                                Spacer()
+                            }
+
+                            AnyView(labelView())
+                                .multilineTextAlignment(isLeading ? .leading : .trailing)
+                                .foregroundStyle(style.textColor)
+
+                            if isLeading {
+                                Spacer()
+                            }
+                        }
+                        .padding(.vertical)
+                        .allowsHitTesting(false)
+                        .accessibilityRespondsToUserInteraction(false)
+                        .safeAreaPadding(isLeading ? .trailing : .leading)
+                        .padding(
+                            isLeading ? .leading : .trailing,
+                            isLeading ? allBounds.minX : geo.size.width - allBounds.maxX,
+                        )
+
+                        Spacer().frame(height: isTop ? nil : max(0, geo.size.height - allBounds.minY))
+                    }.frame(width: geo.size.width)
+                }.ignoresSafeArea()
+            }
         }
         .compositingGroup()
         .ignoresSafeArea()

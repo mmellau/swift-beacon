@@ -6,6 +6,7 @@ struct PresentationContext: Sendable {
     let cutoutAnimation: Animation?
     let onInteraction: BeaconInteractionHandler?
     let focusRestoration: BeaconFocusRestoration
+    let labelView: @MainActor () -> any View
 }
 
 @Observable
@@ -89,7 +90,8 @@ final class BeaconCoordinator {
                 identifiers: remaining,
                 cutoutAnimation: presentation.cutoutAnimation,
                 onInteraction: presentation.onInteraction,
-                focusRestoration: presentation.focusRestoration
+                focusRestoration: presentation.focusRestoration,
+                labelView: presentation.labelView
             )
         }
     }
@@ -97,19 +99,22 @@ final class BeaconCoordinator {
     func present(
         _ identifiers: String...,
         onInteraction: BeaconInteractionHandler? = nil,
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .highlighted,
+        labelView: @escaping @MainActor () -> any View
     ) {
         present(
             Array(identifiers),
             onInteraction: onInteraction,
-            focusRestoration: focusRestoration
+            focusRestoration: focusRestoration,
+            labelView: labelView
         )
     }
 
     func present(
         _ identifiers: [String],
         onInteraction: BeaconInteractionHandler? = nil,
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .highlighted,
+        labelView: @escaping @MainActor () -> any View
     ) {
         if isPresenting {
             Beacon.log(.info, "Replacing active presentation")
@@ -120,7 +125,8 @@ final class BeaconCoordinator {
             identifiers: Set(identifiers),
             cutoutAnimation: nil,
             onInteraction: onInteraction,
-            focusRestoration: focusRestoration
+            focusRestoration: focusRestoration,
+            labelView: labelView
         )
 
         windowManager.showIfNeeded()
@@ -140,13 +146,18 @@ final class BeaconCoordinator {
         postAccessibilityFocusRestoration(focusRestoration, afterDelay: delay)
     }
 
-    func updateActiveIdentifiers(_ identifiers: [String], cutoutAnimation: Animation?) {
+    func updateActiveIdentifiers(
+        _ identifiers: [String],
+        cutoutAnimation: Animation?,
+        labelView: @escaping @MainActor () -> any View
+    ) {
         guard let presentation = currentPresentation else {
             currentPresentation = PresentationContext(
                 identifiers: Set(identifiers),
                 cutoutAnimation: cutoutAnimation,
                 onInteraction: nil,
-                focusRestoration: .highlighted
+                focusRestoration: .highlighted,
+                labelView: labelView
             )
             return
         }
@@ -155,7 +166,8 @@ final class BeaconCoordinator {
             identifiers: Set(identifiers),
             cutoutAnimation: cutoutAnimation,
             onInteraction: presentation.onInteraction,
-            focusRestoration: presentation.focusRestoration
+            focusRestoration: presentation.focusRestoration,
+            labelView: labelView
         )
     }
 
@@ -165,7 +177,8 @@ final class BeaconCoordinator {
                 identifiers: [],
                 cutoutAnimation: nil,
                 onInteraction: handler,
-                focusRestoration: .highlighted
+                focusRestoration: .highlighted,
+                labelView: { EmptyView() }
             )
             return
         }
@@ -173,7 +186,8 @@ final class BeaconCoordinator {
             identifiers: presentation.identifiers,
             cutoutAnimation: presentation.cutoutAnimation,
             onInteraction: handler,
-            focusRestoration: presentation.focusRestoration
+            focusRestoration: presentation.focusRestoration,
+            labelView: presentation.labelView
         )
     }
 

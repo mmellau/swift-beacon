@@ -43,30 +43,35 @@ public enum Beacon {
 
     public static func present(
         _ identifiers: String...,
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .highlighted,
+        label: Text? = nil
     ) {
         present(
             identifiers,
             onInteraction: nil,
-            focusRestoration: focusRestoration
+            focusRestoration: focusRestoration,
+            label: label
         )
     }
 
     public static func present(
         _ identifiers: [String],
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .highlighted,
+        label: Text? = nil
     ) {
         present(
             identifiers,
             onInteraction: nil,
-            focusRestoration: focusRestoration
+            focusRestoration: focusRestoration,
+            label: label
         )
     }
 
     internal static func present(
         _ identifiers: [String],
         onInteraction: BeaconInteractionHandler?,
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration,
+        label: Text?
     ) {
         if Sequence.isRunning {
             log(.info, "Stopping sequence — explicit present() called")
@@ -88,7 +93,14 @@ public enum Beacon {
         coordinator.present(
             valid,
             onInteraction: onInteraction,
-            focusRestoration: focusRestoration
+            focusRestoration: focusRestoration,
+            labelView: {
+                if let label {
+                    label
+                } else {
+                    EmptyView()
+                }
+            }
         )
     }
 
@@ -317,13 +329,15 @@ extension Beacon {
     /// }
     /// ```
     public static func presentAsync(
-        _ identifiers: String...
+        _ identifiers: String...,
+        label: Text? = nil
     ) async -> BeaconTapResult {
-        await presentAsync(identifiers)
+        await presentAsync(identifiers, label: label)
     }
 
     public static func presentAsync(
-        _ identifiers: [String]
+        _ identifiers: [String],
+        label: Text? = nil
     ) async -> BeaconTapResult {
         let valid = identifiers.filter { coordinator.registeredTargets[$0] != nil }
         if valid.isEmpty {
@@ -352,7 +366,8 @@ extension Beacon {
                 present(
                     identifiers,
                     onInteraction: handler,
-                    focusRestoration: .highlighted
+                    focusRestoration: .highlighted,
+                    label: label
                 )
             }
         } onCancel: {
