@@ -1,11 +1,33 @@
 import SwiftUI
 import UIKit
 
+struct AccessoryConfiguration: Sendable {
+    let builder: @MainActor @Sendable () -> AnyView
+    let alignment: Alignment
+    let offset: CGSize
+    let targetId: String
+}
+
 struct PresentationContext: Sendable {
     let identifiers: Set<String>
     let cutoutAnimation: Animation?
     let onInteraction: BeaconInteractionHandler?
     let focusRestoration: BeaconFocusRestoration
+    let accessories: [AccessoryConfiguration]
+
+    init(
+        identifiers: Set<String>,
+        cutoutAnimation: Animation? = nil,
+        onInteraction: BeaconInteractionHandler? = nil,
+        focusRestoration: BeaconFocusRestoration = .highlighted,
+        accessories: [AccessoryConfiguration] = []
+    ) {
+        self.identifiers = identifiers
+        self.cutoutAnimation = cutoutAnimation
+        self.onInteraction = onInteraction
+        self.focusRestoration = focusRestoration
+        self.accessories = accessories
+    }
 }
 
 @Observable
@@ -89,7 +111,8 @@ final class BeaconCoordinator {
                 identifiers: remaining,
                 cutoutAnimation: presentation.cutoutAnimation,
                 onInteraction: presentation.onInteraction,
-                focusRestoration: presentation.focusRestoration
+                focusRestoration: presentation.focusRestoration,
+                accessories: presentation.accessories
             )
         }
     }
@@ -109,7 +132,8 @@ final class BeaconCoordinator {
     func present(
         _ identifiers: [String],
         onInteraction: BeaconInteractionHandler? = nil,
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .highlighted,
+        accessories: [AccessoryConfiguration] = []
     ) {
         if isPresenting {
             Beacon.log(.info, "Replacing active presentation")
@@ -118,9 +142,9 @@ final class BeaconCoordinator {
 
         currentPresentation = PresentationContext(
             identifiers: Set(identifiers),
-            cutoutAnimation: nil,
             onInteraction: onInteraction,
-            focusRestoration: focusRestoration
+            focusRestoration: focusRestoration,
+            accessories: accessories
         )
 
         windowManager.showIfNeeded()
@@ -140,13 +164,16 @@ final class BeaconCoordinator {
         postAccessibilityFocusRestoration(focusRestoration, afterDelay: delay)
     }
 
-    func updateActiveIdentifiers(_ identifiers: [String], cutoutAnimation: Animation?) {
+    func updateActiveIdentifiers(
+        _ identifiers: [String],
+        cutoutAnimation: Animation?,
+        accessories: [AccessoryConfiguration] = []
+    ) {
         guard let presentation = currentPresentation else {
             currentPresentation = PresentationContext(
                 identifiers: Set(identifiers),
                 cutoutAnimation: cutoutAnimation,
-                onInteraction: nil,
-                focusRestoration: .highlighted
+                accessories: accessories
             )
             return
         }
@@ -155,7 +182,8 @@ final class BeaconCoordinator {
             identifiers: Set(identifiers),
             cutoutAnimation: cutoutAnimation,
             onInteraction: presentation.onInteraction,
-            focusRestoration: presentation.focusRestoration
+            focusRestoration: presentation.focusRestoration,
+            accessories: accessories
         )
     }
 
@@ -163,9 +191,7 @@ final class BeaconCoordinator {
         guard let presentation = currentPresentation else {
             currentPresentation = PresentationContext(
                 identifiers: [],
-                cutoutAnimation: nil,
-                onInteraction: handler,
-                focusRestoration: .highlighted
+                onInteraction: handler
             )
             return
         }
@@ -173,7 +199,8 @@ final class BeaconCoordinator {
             identifiers: presentation.identifiers,
             cutoutAnimation: presentation.cutoutAnimation,
             onInteraction: handler,
-            focusRestoration: presentation.focusRestoration
+            focusRestoration: presentation.focusRestoration,
+            accessories: presentation.accessories
         )
     }
 

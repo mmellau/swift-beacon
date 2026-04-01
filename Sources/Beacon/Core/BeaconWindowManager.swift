@@ -114,34 +114,56 @@ struct BeaconCanvas: View {
 
     var body: some View {
         ZStack {
-            style.color.opacity(style.opacity)
-                .onTapGesture {
-                    coordinator.handleInteraction(.tappedOutside)
-                }
-                .accessibilityLabel("Dismiss spotlight")
-                .accessibilityHint("Double tap to dismiss")
-                .accessibilityAddTraits(.isButton)
+            ZStack {
+                style.color.opacity(style.opacity)
+                    .onTapGesture {
+                        coordinator.handleInteraction(.tappedOutside)
+                    }
+                    .accessibilityLabel("Dismiss spotlight")
+                    .accessibilityHint("Double tap to dismiss")
+                    .accessibilityAddTraits(.isButton)
 
-            if regions.count == 1, let region = regions.first {
-                AnimatedCutout(
-                    frame: region.paddedFrame,
-                    cornerRadius: region.cornerRadius,
-                    regionId: region.id,
-                    animation: animation,
-                    coordinator: coordinator
-                )
-            } else {
-                ForEach(regions) { region in
-                    StaticCutout(region: region, coordinator: coordinator)
+                if regions.count == 1, let region = regions.first {
+                    AnimatedCutout(
+                        frame: region.paddedFrame,
+                        cornerRadius: region.cornerRadius,
+                        regionId: region.id,
+                        animation: animation,
+                        coordinator: coordinator
+                    )
+                } else {
+                    ForEach(regions) { region in
+                        StaticCutout(region: region, coordinator: coordinator)
+                    }
+                }
+            }
+            .compositingGroup()
+            .ignoresSafeArea()
+
+            ForEach(accessories, id: \.targetId) { accessory in
+                if let region = regions.first(where: { $0.id == accessory.targetId }) {
+                    Color.clear
+                        .frame(width: region.paddedFrame.width, height: region.paddedFrame.height)
+                        .overlay(alignment: accessory.alignment) {
+                            accessory.builder()
+                                .fixedSize()
+                                .offset(x: accessory.offset.width, y: accessory.offset.height)
+                                .allowsHitTesting(false)
+                        }
+                        .position(x: region.paddedFrame.midX, y: region.paddedFrame.midY)
+                        .animation(animation, value: region.paddedFrame)
                 }
             }
         }
-        .compositingGroup()
         .ignoresSafeArea()
         .accessibilityAddTraits(.isModal)
         .accessibilityAction(.escape) {
             Beacon.dismiss()
         }
+    }
+
+    private var accessories: [AccessoryConfiguration] {
+        coordinator.currentPresentation?.accessories ?? []
     }
 }
 

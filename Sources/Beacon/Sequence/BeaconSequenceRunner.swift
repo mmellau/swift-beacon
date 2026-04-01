@@ -198,7 +198,11 @@ final class BeaconSequenceRunner {
             }
 
             coordinator.setInteractionHandler(handler)
-            coordinator.updateActiveIdentifiers(step.targets, cutoutAnimation: step.animation)
+            coordinator.updateActiveIdentifiers(
+                step.targets,
+                cutoutAnimation: step.animation,
+                accessories: step.accessories
+            )
             windowManager.showIfNeeded()
             announceStep(step)
 
