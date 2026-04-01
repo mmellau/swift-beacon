@@ -145,10 +145,12 @@ struct BeaconCanvas: View {
                     Color.clear
                         .frame(width: region.paddedFrame.width, height: region.paddedFrame.height)
                         .overlay(alignment: accessory.alignment) {
-                            accessory.builder()
-                                .fixedSize()
-                                .offset(x: accessory.offset.width, y: accessory.offset.height)
-                                .allowsHitTesting(false)
+                            DelayedFadeIn {
+                                accessory.builder()
+                                    .fixedSize()
+                                    .offset(x: accessory.offset.width, y: accessory.offset.height)
+                                    .allowsHitTesting(false)
+                            }
                         }
                         .position(x: region.paddedFrame.midX, y: region.paddedFrame.midY)
                         .animation(animation, value: region.paddedFrame)
@@ -164,6 +166,21 @@ struct BeaconCanvas: View {
 
     private var accessories: [AccessoryConfiguration] {
         coordinator.currentPresentation?.accessories ?? []
+    }
+}
+
+private struct DelayedFadeIn<Content: View>: View {
+    @ViewBuilder let content: Content
+    @State private var isVisible = false
+
+    var body: some View {
+        content
+            .opacity(isVisible ? 1 : 0)
+            .onAppear {
+                withAnimation(.easeOut(duration: 0.25).delay(0.35)) {
+                    isVisible = true
+                }
+            }
     }
 }
 
