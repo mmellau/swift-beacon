@@ -165,19 +165,35 @@ struct TasksView: View {
     private var prioritySlideshowSequence: BeaconSequence {
         BeaconSequence {
             BeaconStep(
-                targets: ["priority-tag"],
+                targets: [
+                    BeaconTarget("priority-tag", alignment: .topTrailing, offset: CGSize(width: 0, height: -60)) {
+                        TooltipLabel("Each task has a priority", systemImage: "tag")
+                    }
+                ],
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["priority-high"],
+                targets: [
+                    BeaconTarget("priority-high", alignment: .top, offset: CGSize(width: 0, height: -60)) {
+                        TooltipLabel("Urgent items go here", systemImage: "exclamationmark.circle")
+                    }
+                ],
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["priority-medium"],
+                targets: [
+                    BeaconTarget("priority-medium", alignment: .top, offset: CGSize(width: 0, height: -60)) {
+                        TooltipLabel("Moderate importance", systemImage: "minus.circle")
+                    }
+                ],
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["priority-low"],
+                targets: [
+                    BeaconTarget("priority-low", alignment: .bottom, offset: CGSize(width: 0, height: 60)) {
+                        TooltipLabel("Nice to have", systemImage: "arrow.down.circle")
+                    }
+                ],
                 dimmedTapBehavior: .ignore
             )
         }
