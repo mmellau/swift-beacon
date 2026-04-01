@@ -88,27 +88,47 @@ struct TasksView: View {
     private var onboardingSequence: BeaconSequence {
         BeaconSequence {
             BeaconStep(
-                targets: ["add-task"],
+                targets: [
+                    BeaconTarget("add-task", alignment: .bottomTrailing, offset: CGSize(width: 0, height: 60)) {
+                        TooltipLabel("Tap here to add a task", systemImage: "hand.tap")
+                    }
+                ],
                 tapBehavior: .custom { showAddSheet = true },
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["title-field"],
+                targets: [
+                    BeaconTarget("title-field", alignment: .top, offset: CGSize(width: 0, height: -60)) {
+                        TooltipLabel("Enter a task name", systemImage: "pencil")
+                    }
+                ],
                 tapBehavior: .advance,
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["due-toggle"],
+                targets: [
+                    BeaconTarget("due-toggle", alignment: .top, offset: CGSize(width: 0, height: -60)) {
+                        TooltipLabel("Set a due date", systemImage: "calendar")
+                    }
+                ],
                 tapBehavior: .advance,
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["add-button"],
+                targets: [
+                    BeaconTarget("add-button", alignment: .bottomTrailing, offset: CGSize(width: 0, height: 60)) {
+                        TooltipLabel("Save your task", systemImage: "checkmark.circle")
+                    }
+                ],
                 tapBehavior: .custom { showAddSheet = false },
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["task-checkbox"],
+                targets: [
+                    BeaconTarget("task-checkbox", alignment: .bottomLeading, offset: CGSize(width: 0, height: 60)) {
+                        TooltipLabel("Mark it done!", systemImage: "hand.tap")
+                    }
+                ],
                 tapBehavior: .advance,
                 dimmedTapBehavior: .ignore
             )
@@ -126,7 +146,11 @@ struct TasksView: View {
     private func tryPriorityFeature() async {
         priorityDiscoveryInProgress = true
 
-        let result = await Beacon.presentAsync("priority-tag")
+        let result = await Beacon.presentAsync(
+            BeaconTarget("priority-tag", alignment: .topTrailing, offset: CGSize(width: 0, height: -60)) {
+                TooltipLabel("Tap a priority tag to change it", systemImage: "tag")
+            }
+        )
 
         if case .tappedRegion = result {
             if let firstPriorityTask = store.tasks.first(where: { $0.priority != .none }) {
@@ -141,19 +165,35 @@ struct TasksView: View {
     private var prioritySlideshowSequence: BeaconSequence {
         BeaconSequence {
             BeaconStep(
-                targets: ["priority-tag"],
+                targets: [
+                    BeaconTarget("priority-tag", alignment: .topTrailing, offset: CGSize(width: 0, height: -60)) {
+                        TooltipLabel("Each task has a priority", systemImage: "tag")
+                    }
+                ],
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["priority-high"],
+                targets: [
+                    BeaconTarget("priority-high", alignment: .top, offset: CGSize(width: 0, height: -60)) {
+                        TooltipLabel("Urgent items go here", systemImage: "exclamationmark.circle")
+                    }
+                ],
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["priority-medium"],
+                targets: [
+                    BeaconTarget("priority-medium", alignment: .top, offset: CGSize(width: 0, height: -60)) {
+                        TooltipLabel("Moderate importance", systemImage: "minus.circle")
+                    }
+                ],
                 dimmedTapBehavior: .ignore
             )
             BeaconStep(
-                targets: ["priority-low"],
+                targets: [
+                    BeaconTarget("priority-low", alignment: .bottom, offset: CGSize(width: 0, height: 60)) {
+                        TooltipLabel("Nice to have", systemImage: "arrow.down.circle")
+                    }
+                ],
                 dimmedTapBehavior: .ignore
             )
         }
@@ -300,6 +340,23 @@ private struct TasksSection: View {
         } header: {
             Text("Tasks")
         }
+    }
+}
+
+private struct TooltipLabel: View {
+    let text: String
+    let systemImage: String
+
+    init(_ text: String, systemImage: String) {
+        self.text = text
+        self.systemImage = systemImage
+    }
+
+    var body: some View {
+        Label(text, systemImage: systemImage)
+            .font(.callout)
+            .padding()
+            .background(.ultraThinMaterial, in: .rect(cornerRadius: 12))
     }
 }
 

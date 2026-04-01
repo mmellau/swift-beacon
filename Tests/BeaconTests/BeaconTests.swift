@@ -8,6 +8,7 @@ extension Tag {
     @Tag static var sequence: Self
     @Tag static var validation: Self
     @Tag static var asyncAPI: Self
+    @Tag static var accessory: Self
 }
 
 private let testFrame = CGRect(x: 100, y: 100, width: 50, height: 50)
@@ -490,5 +491,111 @@ struct AsyncAPIBehaviorTests {
         #expect(completed)
 
         Beacon.coordinator.unregister("valid")
+    }
+}
+
+@Suite("Accessory Support", .tags(.accessory))
+@MainActor
+struct AccessoryTests {
+
+    @Test("BeaconTarget with accessory stores configuration")
+    func targetWithAccessory() {
+        let target = BeaconTarget("star", alignment: .top, offset: CGSize(width: 5, height: 10)) {
+            Text("Hello")
+        }
+        #expect(target.identifier == "star")
+        #expect(target.accessory != nil)
+        #expect(target.accessory?.alignment == .top)
+        #expect(target.accessory?.offset == CGSize(width: 5, height: 10))
+        #expect(target.accessory?.targetId == "star")
+    }
+
+    @Test("BeaconTarget without accessory has nil accessory")
+    func targetWithoutAccessory() {
+        let target = BeaconTarget("star")
+        #expect(target.identifier == "star")
+        #expect(target.accessory == nil)
+    }
+
+    @Test("BeaconTarget string literal creates plain target")
+    func targetFromStringLiteral() {
+        let target: BeaconTarget = "star"
+        #expect(target.identifier == "star")
+        #expect(target.accessory == nil)
+    }
+
+    @Test("BeaconStep with BeaconTarget array extracts accessories")
+    func stepWithBeaconTargets() {
+        let step = BeaconStep(targets: [
+            BeaconTarget("a", alignment: .top) { Text("A") },
+            BeaconTarget("b"),
+            BeaconTarget("c", alignment: .leading) { Text("C") }
+        ])
+        #expect(step.targets == ["a", "b", "c"])
+        #expect(step.accessories.count == 2)
+        #expect(step.accessories[0].targetId == "a")
+        #expect(step.accessories[1].targetId == "c")
+    }
+
+    @Test("BeaconStep without accessory has empty accessories")
+    func stepWithoutAccessory() {
+        let step = BeaconStep(targets: ["star"])
+        #expect(step.accessories.isEmpty)
+    }
+
+    @Test("PresentationContext preserves accessories on unregister")
+    func contextPreservesOnUnregister() {
+        let coordinator = BeaconCoordinator(windowManager: .mock)
+        coordinator.register("a", frame: testFrame, shape: .circle, padding: 0)
+        coordinator.register("b", frame: testFrame, shape: .circle, padding: 0)
+
+        let accessories = [AccessoryConfiguration(
+            builder: { AnyView(Text("test")) },
+            alignment: .top,
+            offset: .zero,
+            targetId: "a"
+        )]
+
+        coordinator.present(["a", "b"], accessories: accessories)
+        #expect(coordinator.currentPresentation?.accessories.count == 1)
+
+        coordinator.unregister("b")
+        #expect(coordinator.currentPresentation?.accessories.count == 1)
+    }
+
+    @Test("PresentationContext preserves accessories on setInteractionHandler")
+    func contextPreservesOnSetHandler() {
+        let coordinator = BeaconCoordinator(windowManager: .mock)
+        coordinator.register("test", frame: testFrame, shape: .circle, padding: 0)
+
+        let accessories = [AccessoryConfiguration(
+            builder: { AnyView(Text("test")) },
+            alignment: .leading,
+            offset: CGSize(width: 5, height: 5),
+            targetId: "test"
+        )]
+
+        coordinator.present(["test"], accessories: accessories)
+        coordinator.setInteractionHandler { _ in }
+
+        #expect(coordinator.currentPresentation?.accessories.count == 1)
+        #expect(coordinator.currentPresentation?.accessories.first?.alignment == .leading)
+    }
+
+    @Test("dismiss clears accessories")
+    func dismissClears() {
+        let coordinator = BeaconCoordinator(windowManager: .mock)
+        coordinator.register("test", frame: testFrame, shape: .circle, padding: 0)
+
+        let accessories = [AccessoryConfiguration(
+            builder: { AnyView(Text("test")) },
+            alignment: .top,
+            offset: .zero,
+            targetId: "test"
+        )]
+
+        coordinator.present(["test"], accessories: accessories)
+        coordinator.dismiss()
+        #expect(coordinator.currentPresentation == nil)
     }
 }
