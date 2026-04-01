@@ -26,12 +26,12 @@
   <tr>
     <td>
 
-https://github.com/user-attachments/assets/adf2eeb9-fac3-4a80-ba96-1ad192fd37ff
+https://github.com/user-attachments/assets/2d85fa57-fff0-4274-9ff9-940abe1ac244
 
 </td>
     <td>
 
-https://github.com/user-attachments/assets/378c5fcb-d9c0-471c-8e9d-39134a80af4b
+https://github.com/user-attachments/assets/d6e2800a-2c51-46a8-b49d-9343881b0557
 
 </td>
   </tr>
