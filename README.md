@@ -41,6 +41,7 @@ https://github.com/user-attachments/assets/378c5fcb-d9c0-471c-8e9d-39134a80af4b
 
 - Single-line spotlight presentation
 - Declarative sequence builder with step navigation
+- Tooltip/accessory views on cutouts with flexible positioning
 - Multiple spotlight shapes
 - Configurable overlay style and animations
 - Works across sheets, popovers, and navigation stacks
@@ -119,6 +120,51 @@ await Beacon.Sequence.runAsync {
     BeaconStep(targets: ["settings"])
 }
 print("Onboarding complete!")
+```
+
+## Tooltips
+
+Attach custom views to spotlight cutouts:
+
+### Simple tooltip
+
+```swift
+Beacon.Sequence.run {
+    BeaconStep(targets: [
+        BeaconTarget("star", alignment: .top) {
+            Text("Tap to favorite")
+        }
+    ])
+    BeaconStep(targets: ["settings"])  // no tooltip
+}
+```
+
+### Per-target tooltips
+
+Use `BeaconTarget` for per-cutout configuration:
+
+```swift
+Beacon.present(
+    BeaconTarget("inbox", alignment: .top) {
+        Label("3 new messages", systemImage: "envelope")
+    },
+    BeaconTarget("compose", alignment: .bottom) {
+        Text("Write a new message")
+    },
+    "settings"  // no tooltip
+)
+```
+
+### Positioning
+
+Tooltips use SwiftUI's native `Alignment` (`.top`, `.bottom`, `.leading`, `.trailing`, and all 9 built-in positions). Fine-tune with `offset`:
+
+```swift
+BeaconStep(targets: [
+    BeaconTarget("star", alignment: .top, offset: CGSize(width: 0, height: -8)) {
+        Text("Tap to favorite")
+    }
+])
 ```
 
 ## Configuration
