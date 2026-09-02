@@ -19,7 +19,7 @@ struct PresentationContext: Sendable {
         identifiers: Set<String>,
         cutoutAnimation: Animation? = nil,
         onInteraction: BeaconInteractionHandler? = nil,
-        focusRestoration: BeaconFocusRestoration = .highlighted,
+        focusRestoration: BeaconFocusRestoration = .automatic,
         accessories: [AccessoryConfiguration] = []
     ) {
         self.identifiers = identifiers
@@ -120,7 +120,7 @@ final class BeaconCoordinator {
     func present(
         _ identifiers: String...,
         onInteraction: BeaconInteractionHandler? = nil,
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .automatic
     ) {
         present(
             Array(identifiers),
@@ -132,7 +132,7 @@ final class BeaconCoordinator {
     func present(
         _ identifiers: [String],
         onInteraction: BeaconInteractionHandler? = nil,
-        focusRestoration: BeaconFocusRestoration = .highlighted,
+        focusRestoration: BeaconFocusRestoration = .automatic,
         accessories: [AccessoryConfiguration] = []
     ) {
         if isPresenting {

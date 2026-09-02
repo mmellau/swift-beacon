@@ -43,7 +43,7 @@ public enum Beacon {
 
     public static func present(
         _ identifiers: String...,
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .automatic
     ) {
         present(
             identifiers,
@@ -54,7 +54,7 @@ public enum Beacon {
 
     public static func present(
         _ identifiers: [String],
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .automatic
     ) {
         present(
             identifiers,
@@ -65,14 +65,14 @@ public enum Beacon {
 
     public static func present(
         _ targets: BeaconTarget...,
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .automatic
     ) {
         present(targets, focusRestoration: focusRestoration)
     }
 
     public static func present(
         _ targets: [BeaconTarget],
-        focusRestoration: BeaconFocusRestoration = .highlighted
+        focusRestoration: BeaconFocusRestoration = .automatic
     ) {
         let identifiers = targets.map(\.identifier)
         let accessories = targets.compactMap(\.accessory)
@@ -87,7 +87,7 @@ public enum Beacon {
     internal static func present(
         _ identifiers: [String],
         onInteraction: BeaconInteractionHandler?,
-        focusRestoration: BeaconFocusRestoration = .highlighted,
+        focusRestoration: BeaconFocusRestoration = .automatic,
         accessories: [AccessoryConfiguration] = []
     ) {
         if Sequence.isRunning {
@@ -320,7 +320,6 @@ public enum BeaconTapResult: Sendable, Equatable {
     case tappedOutside
     case tappedRegion(String)
     case dismissed
-    case advanced
 }
 
 internal typealias BeaconInteraction = BeaconTapResult
@@ -396,7 +395,7 @@ extension Beacon {
                 present(
                     identifiers,
                     onInteraction: handler,
-                    focusRestoration: .highlighted,
+                    focusRestoration: .automatic,
                     accessories: accessories
                 )
             }

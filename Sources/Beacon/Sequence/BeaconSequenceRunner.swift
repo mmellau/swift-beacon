@@ -5,13 +5,18 @@ import UIKit
 @MainActor
 final class BeaconSequenceRunner {
 
+    private enum StepEvent {
+        case interaction(BeaconInteraction)
+        case advanced
+    }
+
     private static let maxRetries = 5
     private static let retryDelay: Duration = .milliseconds(100)
 
     private var sequence: BeaconSequence?
     private var currentIndex: Int = 0
     private var runTask: Task<Void, Never>?
-    private var interactionContinuation: CheckedContinuation<BeaconInteraction?, Never>?
+    private var interactionContinuation: CheckedContinuation<StepEvent?, Never>?
 
     private let windowManager: WindowManager
     private let coordinator: BeaconCoordinator
@@ -164,7 +169,7 @@ final class BeaconSequenceRunner {
         return []
     }
 
-    private func waitForInteraction() async -> BeaconInteraction? {
+    private func waitForStepEvent() async -> StepEvent? {
         await withCheckedContinuation { continuation in
             self.interactionContinuation = continuation
         }
@@ -193,7 +198,7 @@ final class BeaconSequenceRunner {
             }
 
             let handler: BeaconInteractionHandler = { [weak self] interaction in
-                self?.interactionContinuation?.resume(returning: interaction)
+                self?.interactionContinuation?.resume(returning: .interaction(interaction))
                 self?.interactionContinuation = nil
             }
 
@@ -206,12 +211,12 @@ final class BeaconSequenceRunner {
             windowManager.showIfNeeded()
             announceStep(step)
 
-            guard let interaction = await waitForInteraction() else {
+            guard let event = await waitForStepEvent() else {
                 break
             }
 
-            switch interaction {
-            case .tappedOutside:
+            switch event {
+            case .interaction(.tappedOutside):
                 switch step.dimmedTapBehavior {
                 case .dismiss:
                     return
@@ -219,7 +224,7 @@ final class BeaconSequenceRunner {
                     continue
                 }
 
-            case .tappedRegion:
+            case .interaction(.tappedRegion):
                 switch step.tapBehavior {
                 case .advance:
                     index += 1
@@ -233,7 +238,7 @@ final class BeaconSequenceRunner {
             case .advanced:
                 index += 1
 
-            case .dismissed:
+            case .interaction(.dismissed):
                 Beacon.log(.info, "Sequence interrupted by external dismiss()")
                 return
             }
