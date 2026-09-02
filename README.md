@@ -55,7 +55,7 @@ In Xcode, choose **File › Add Package Dependencies** and enter `https://github
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/mmellau/swift-beacon", from: "0.2.0")
+    .package(url: "https://github.com/mmellau/swift-beacon", from: "0.3.0")
 ]
 ```
 
